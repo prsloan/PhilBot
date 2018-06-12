@@ -1,9 +1,12 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
+using PhilBot.Dialogs;
+using PhilBot.Models;
 
 namespace PhilBot
 {
@@ -18,7 +21,7 @@ namespace PhilBot
         {
             if (activity.Type == ActivityTypes.Message)
             {
-                await Conversation.SendAsync(activity, () => new Dialogs.RootDialog());
+                await Conversation.SendAsync(activity, MakeLuisDialog);
             }
             else
             {
@@ -26,6 +29,11 @@ namespace PhilBot
             }
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
+        }
+
+        private IDialog<RoomReservation> MakeLuisDialog()
+        {
+            return Chain.From(() => new LUISDialog(RoomReservation.BuildForm));
         }
 
         private Activity HandleSystemMessage(Activity message)
